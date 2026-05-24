@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://hote244-api.onrender.com/api',
+  baseURL: 'http://localhost:5000/api',
 });
 
 // Add interceptor to include token in requests
