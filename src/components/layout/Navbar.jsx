@@ -51,9 +51,9 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link to="/" className="flex items-center gap-2">
               <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                H
+                K
               </div>
-              <span className="text-2xl font-bold text-gray-900 tracking-tight">GrandHotel</span>
+              <span className="text-2xl font-bold text-gray-900 tracking-tight">ບ້ານພັກແຄມເດີນກິລາ</span>
             </Link>
           </div>
           
