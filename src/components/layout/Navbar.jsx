@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronDown, Globe, Menu, Shield, User, LogOut, CalendarDays } from 'lucide-react';
+import { ChevronDown, Globe, Menu, Shield, User, LogOut, CalendarDays, X } from 'lucide-react';
 import { useTranslation } from '../../i18n/LanguageProvider';
 
 export default function Navbar() {
@@ -8,6 +8,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const menuRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(() => {
     const userRaw = localStorage.getItem('user');
     return userRaw ? JSON.parse(userRaw) : null;
@@ -41,8 +42,11 @@ export default function Navbar() {
     localStorage.removeItem('user');
     window.dispatchEvent(new Event('authchange'));
     setMenuOpen(false);
+    setMobileMenuOpen(false);
     navigate('/');
   };
+
+  const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
@@ -137,12 +141,105 @@ export default function Navbar() {
                 <span className="text-sm font-medium hidden sm:block">{t('nav.signIn')}</span>
               </Link>
             )}
-            <button className="md:hidden text-gray-500">
-              <Menu size={24} />
+            <button
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              className="md:hidden text-gray-500 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu Panel */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-gray-100 bg-white">
+          <div className="px-4 py-4 space-y-3">
+            <Link
+              to="/"
+              onClick={closeMobileMenu}
+              className="block text-gray-600 hover:text-primary font-medium py-2"
+            >
+              {t('nav.home')}
+            </Link>
+            <Link
+              to="/rooms"
+              onClick={closeMobileMenu}
+              className="block text-gray-600 hover:text-primary font-medium py-2"
+            >
+              {t('nav.rooms')}
+            </Link>
+            <Link
+              to="/facilities"
+              onClick={closeMobileMenu}
+              className="block text-gray-600 hover:text-primary font-medium py-2"
+            >
+              {t('nav.facilities')}
+            </Link>
+            <Link
+              to="/contact"
+              onClick={closeMobileMenu}
+              className="block text-gray-600 hover:text-primary font-medium py-2"
+            >
+              {t('nav.contact')}
+            </Link>
+
+            <div className="border-t border-gray-100 pt-3">
+              <button
+                onClick={() => {
+                  toggleLang();
+                }}
+                className="flex items-center gap-2 text-gray-600 hover:text-primary font-medium py-2"
+              >
+                <Globe size={18} />
+                <span>{lang === 'en' ? 'Switch to Lao' : 'Switch to English'}</span>
+                <span className="text-xs font-semibold bg-gray-100 px-2 py-0.5 rounded">
+                  {lang.toUpperCase()}
+                </span>
+              </button>
+            </div>
+
+            {user && (
+              <div className="border-t border-gray-100 pt-3 space-y-2">
+                <Link
+                  to="/profile"
+                  onClick={closeMobileMenu}
+                  className="flex items-center gap-2 text-gray-600 hover:text-primary font-medium py-2"
+                >
+                  <User size={16} />
+                  {t('profile.accountInfo')}
+                </Link>
+                <Link
+                  to="/my-bookings"
+                  onClick={closeMobileMenu}
+                  className="flex items-center gap-2 text-gray-600 hover:text-primary font-medium py-2"
+                >
+                  <CalendarDays size={16} />
+                  {t('profile.bookingHistory')}
+                </Link>
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    onClick={closeMobileMenu}
+                    className="flex items-center gap-2 text-gray-600 hover:text-primary font-medium py-2"
+                  >
+                    <Shield size={16} />
+                    {t('profile.goToAdmin')}
+                  </Link>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 text-red-600 font-medium py-2 w-full text-left"
+                >
+                  <LogOut size={16} />
+                  {t('profile.logout')}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
