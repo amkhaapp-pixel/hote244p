@@ -115,6 +115,12 @@ export default function BookingHistory() {
                             <p className="text-xs text-gray-500 mt-1">
                               Booking ID: {booking.id} • {new Date(booking.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                             </p>
+                            {booking.special_requests && (
+                              <div className="mt-3 bg-gray-50 p-3 rounded-xl">
+                                <p className="text-xs font-semibold text-gray-700 mb-1">{t('booking.specialRequests')}</p>
+                                <p className="text-sm text-gray-600">{booking.special_requests}</p>
+                              </div>
+                            )}
                           </div>
                           <div className="flex justify-between items-end mt-2">
                              <div className="text-xs text-gray-600">

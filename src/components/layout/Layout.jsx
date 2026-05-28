@@ -10,7 +10,7 @@ export default function Layout() {
       </main>
       <footer className="bg-gray-900 text-white py-12 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
-          <p>&copy; 2026 GrandHotel Booking. All rights reserved.</p>
+          <p>&copy; 2026 ບ້ານພັກແຄມເດີນກິລາ. All rights reserved.</p>
         </div>
       </footer>
     </div>

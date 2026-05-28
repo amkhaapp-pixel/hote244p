@@ -200,43 +200,7 @@ export default function Navbar() {
               </button>
             </div>
 
-            {user && (
-              <div className="border-t border-gray-100 pt-3 space-y-2">
-                <Link
-                  to="/profile"
-                  onClick={closeMobileMenu}
-                  className="flex items-center gap-2 text-gray-600 hover:text-primary font-medium py-2"
-                >
-                  <User size={16} />
-                  {t('profile.accountInfo')}
-                </Link>
-                <Link
-                  to="/my-bookings"
-                  onClick={closeMobileMenu}
-                  className="flex items-center gap-2 text-gray-600 hover:text-primary font-medium py-2"
-                >
-                  <CalendarDays size={16} />
-                  {t('profile.bookingHistory')}
-                </Link>
-                {isAdmin && (
-                  <Link
-                    to="/admin"
-                    onClick={closeMobileMenu}
-                    className="flex items-center gap-2 text-gray-600 hover:text-primary font-medium py-2"
-                  >
-                    <Shield size={16} />
-                    {t('profile.goToAdmin')}
-                  </Link>
-                )}
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 text-red-600 font-medium py-2 w-full text-left"
-                >
-                  <LogOut size={16} />
-                  {t('profile.logout')}
-                </button>
-              </div>
-            )}
+
           </div>
         </div>
       )}

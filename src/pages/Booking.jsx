@@ -110,6 +110,7 @@ export default function Booking() {
           checkIn: checkIn || formatDateLocal(new Date()),
           checkOut: checkOut || formatDateLocal(new Date(Date.now() + 86400000)),
           roomCount: rooms,
+          specialRequests: formData.requests || null,
         };
         const response = await api.post('/booking', payload);
 

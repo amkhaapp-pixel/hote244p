@@ -113,7 +113,7 @@ export default function BookingManagement() {
   }, [bookings, searchTerm, statusFilter, roomType, dateFrom, dateTo]);
 
   const exportCsv = () => {
-    const headers = [t('adminPanel.bookings.bookingId'), t('adminPanel.bookings.customerName'), 'Email', t('adminPanel.bookings.roomTypeLabel'), t('adminPanel.bookings.checkInOut'), t('adminPanel.bookings.checkInOut'), 'Total', t('adminPanel.bookings.status')];
+    const headers = [t('adminPanel.bookings.bookingId'), t('adminPanel.bookings.customerName'), 'Email', t('adminPanel.bookings.roomTypeLabel'), t('adminPanel.bookings.checkInOut'), t('adminPanel.bookings.checkInOut'), 'Total', t('adminPanel.bookings.status'), t('booking.specialRequests')];
     const rows = filteredBookings.map((b) => [
       b.id,
       b.customer_name,
@@ -123,6 +123,7 @@ export default function BookingManagement() {
       b.check_out,
       b.total_price,
       b.status,
+      b.special_requests || '',
     ]);
     const esc = (c) => `"${String(c ?? '').replace(/"/g, '""')}"`;
     const body = [headers, ...rows].map((r) => r.map(esc).join(',')).join('\n');
@@ -276,6 +277,9 @@ export default function BookingManagement() {
                 <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
                   {t('adminPanel.bookings.status')}
                 </th>
+                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  {t('booking.specialRequests')}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -311,12 +315,19 @@ export default function BookingManagement() {
                     <td className="px-6 py-5">
                       <StatusBadge status={booking.status} />
                     </td>
+                    <td className="px-6 py-5">
+                      {booking.special_requests ? (
+                        <p className="text-xs text-slate-600 max-w-xs line-clamp-2">{booking.special_requests}</p>
+                      ) : (
+                        <span className="text-xs text-slate-400 italic">-</span>
+                      )}
+                    </td>
                   </tr>
                 );
               })}
               {filteredBookings.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-16 text-center text-sm text-slate-500">
+                  <td colSpan={6} className="px-6 py-16 text-center text-sm text-slate-500">
                     {t('adminPanel.bookings.noBookingsMatch')}
                   </td>
                 </tr>
