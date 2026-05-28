@@ -15,28 +15,33 @@ import {
   Menu,
   X,
   Mail,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { useTranslation } from '../i18n/LanguageProvider';
 
 const SIDEBAR_W = 'w-[280px]';
+const SIDEBAR_W_COLLAPSED = 'w-[72px]';
 
-const SidebarLink = ({ to, icon: Icon, label, active, onClick }) => (
+const SidebarLink = ({ to, icon: Icon, label, active, onClick, collapsed }) => (
   <Link
     to={to}
     onClick={onClick}
     className={`px-6 py-3 flex items-center gap-3 transition-all duration-200 ${active
       ? 'bg-blue-600/10 text-white border-l-4 border-emerald-400'
       : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-l-4 border-transparent'
-      }`}
+      } ${collapsed ? 'justify-center px-3' : ''}`}
+    title={collapsed ? label : undefined}
   >
     <Icon size={22} strokeWidth={active ? 2 : 1.75} className="shrink-0" />
-    <span className="font-medium text-sm">{label}</span>
+    {!collapsed && <span className="font-medium text-sm whitespace-nowrap">{label}</span>}
   </Link>
 );
 
 export default function AdminLayout() {
   const { t } = useTranslation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || localStorage.getItem('adminUser') || '{}');
@@ -64,6 +69,7 @@ export default function AdminLayout() {
   const isActive = (path) => location.pathname === path;
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setIsSidebarOpen(false);
+  const toggleSidebarCollapse = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
   return (
     <div className="flex h-screen bg-[#fbf8fa] text-slate-900 antialiased overflow-hidden">
@@ -77,21 +83,29 @@ export default function AdminLayout() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex ${SIDEBAR_W} flex-col border-r border-slate-800 bg-slate-900 transition-transform duration-300 lg:static lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-50 flex ${isSidebarCollapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W} flex-col border-r border-slate-800 bg-slate-900 transition-all duration-300 lg:static lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
       >
-        <div className="px-6 py-8 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="px-6 py-8 flex items-center justify-between shrink-0 relative">
+          <div className={`flex items-center gap-3 overflow-hidden transition-all duration-300 ${isSidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-blue-600">
               <Hotel className="text-white" size={22} />
             </div>
-            <div>
+            <div className="whitespace-nowrap">
               <h1 className="text-xl font-bold tracking-tight text-white">{propertyName}</h1>
               <p className="text-xs font-medium text-slate-500">Enterprise Admin</p>
             </div>
           </div>
           <button className="text-slate-400 lg:hidden" onClick={closeSidebar}>
             <X size={24} />
+          </button>
+          {/* Collapse toggle button - desktop only */}
+          <button
+            className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 h-6 w-6 items-center justify-center rounded-full bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-white transition-colors shadow-lg border border-slate-600"
+            onClick={toggleSidebarCollapse}
+            title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
           </button>
         </div>
 
@@ -102,6 +116,7 @@ export default function AdminLayout() {
             label={t('adminPanel.layout.dashboard')}
             active={isActive('/admin/dashboard') || location.pathname === '/admin'}
             onClick={closeSidebar}
+            collapsed={isSidebarCollapsed}
           />
           <SidebarLink
             to="/admin/bookings"
@@ -109,6 +124,7 @@ export default function AdminLayout() {
             label={t('adminPanel.layout.bookings')}
             active={isActive('/admin/bookings')}
             onClick={closeSidebar}
+            collapsed={isSidebarCollapsed}
           />
           <SidebarLink
             to="/admin/rooms"
@@ -116,6 +132,7 @@ export default function AdminLayout() {
             label={t('adminPanel.layout.rooms')}
             active={isActive('/admin/rooms')}
             onClick={closeSidebar}
+            collapsed={isSidebarCollapsed}
           />
           <SidebarLink
             to="/admin/payments"
@@ -123,6 +140,7 @@ export default function AdminLayout() {
             label={t('adminPanel.layout.payments')}
             active={isActive('/admin/payments')}
             onClick={closeSidebar}
+            collapsed={isSidebarCollapsed}
           />
           <SidebarLink
             to="/admin/customers"
@@ -130,6 +148,7 @@ export default function AdminLayout() {
             label={t('adminPanel.layout.customers')}
             active={isActive('/admin/customers')}
             onClick={closeSidebar}
+            collapsed={isSidebarCollapsed}
           />
           <SidebarLink
             to="/admin/messages"
@@ -137,6 +156,7 @@ export default function AdminLayout() {
             label={t('adminPanel.layout.messages')}
             active={isActive('/admin/messages')}
             onClick={closeSidebar}
+            collapsed={isSidebarCollapsed}
           />
           <SidebarLink
             to="/admin/settings"
@@ -144,6 +164,7 @@ export default function AdminLayout() {
             label={t('adminPanel.layout.settings')}
             active={isActive('/admin/settings')}
             onClick={closeSidebar}
+            collapsed={isSidebarCollapsed}
           />
         </nav>
 
@@ -151,10 +172,11 @@ export default function AdminLayout() {
           <button
             type="button"
             onClick={handleBackToHome}
-            className="flex w-full items-center gap-3 rounded px-6 py-3 text-left text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-white"
+            className={`flex w-full items-center gap-3 rounded px-6 py-3 text-left text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-white ${isSidebarCollapsed ? 'justify-center px-3' : ''}`}
+            title={isSidebarCollapsed ? t('adminPanel.layout.logout') : undefined}
           >
             <Home size={22} />
-            <span className="text-sm font-medium">{t('adminPanel.layout.logout')}</span>
+            {!isSidebarCollapsed && <span className="text-sm font-medium">{t('adminPanel.layout.logout')}</span>}
           </button>
         </div>
       </aside>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { User, Lock, Mail, ArrowRight, CheckCircle } from 'lucide-react';
+import { User, Lock, Mail, ArrowRight, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from '../i18n/LanguageProvider';
 import api from '../api/axios';
 
@@ -12,6 +12,8 @@ export default function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,17 +90,31 @@ export default function Register() {
             </div>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input type="password" required placeholder={t('register.password')}
+              <input type={showPassword ? 'text' : 'password'} required placeholder={t('register.password')}
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-primary" />
+                className="w-full pl-10 pr-12 py-3 rounded-xl border border-gray-200 outline-none focus:border-primary" />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input type="password" required placeholder={t('register.confirmPassword')}
+              <input type={showConfirmPassword ? 'text' : 'password'} required placeholder={t('register.confirmPassword')}
                 value={form.confirmPassword}
                 onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-primary" />
+                className="w-full pl-10 pr-12 py-3 rounded-xl border border-gray-200 outline-none focus:border-primary" />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
             <button type="submit" disabled={loading} className="w-full bg-primary hover:bg-blue-900 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
               {loading ? t('register.loading') : t('register.signUpBtn')} <ArrowRight size={18} />

@@ -10,10 +10,40 @@ export default function Payment() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { booking, roomName } = location.state || {};
+  const { booking: bookingFromState, roomName: roomNameFromState } = location.state || {};
   const fileInputRef = useRef(null);
 
-  const [timeLeft, setTimeLeft] = useState(900); // 15 minutes in seconds
+  // Restore booking data from localStorage if page is refreshed
+  const [booking, setBooking] = useState(() => {
+    if (bookingFromState) {
+      localStorage.setItem('payment_booking', JSON.stringify(bookingFromState));
+      return bookingFromState;
+    }
+    const saved = localStorage.getItem('payment_booking');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [roomName, setRoomName] = useState(() => {
+    if (roomNameFromState) {
+      localStorage.setItem('payment_roomName', roomNameFromState);
+      return roomNameFromState;
+    }
+    return localStorage.getItem('payment_roomName') || '';
+  });
+
+  // Restore countdown timer from localStorage
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const savedStartTime = localStorage.getItem('payment_start_time');
+    if (savedStartTime) {
+      const elapsed = Math.floor((Date.now() - parseInt(savedStartTime, 10)) / 1000);
+      const remaining = 900 - elapsed;
+      return remaining > 0 ? remaining : 0;
+    }
+    // First time: save start time
+    localStorage.setItem('payment_start_time', Date.now().toString());
+    return 900; // 15 minutes in seconds
+  });
+
   const [selectedMethod, setSelectedMethod] = useState('qr');
   const [isProcessing, setIsProcessing] = useState(false);
   const [slipImage, setSlipImage] = useState(null);
@@ -23,10 +53,16 @@ export default function Payment() {
   useEffect(() => {
     if (timeLeft <= 0) return;
     const timer = setInterval(() => {
-      setTimeLeft(prev => prev - 1);
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, []);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -110,11 +146,16 @@ export default function Payment() {
       };
       await api.post('/booking/payment', payload);
 
-      // 3. Store payment time in localStorage for countdown persistence across page refreshes
+      // 3. Clear payment session data from localStorage
+      localStorage.removeItem('payment_booking');
+      localStorage.removeItem('payment_roomName');
+      localStorage.removeItem('payment_start_time');
+
+      // 4. Store payment time in localStorage for success page
       const paymentTime = Date.now();
       localStorage.setItem(`paymentTime_${booking.id}`, paymentTime.toString());
 
-      // 4. Navigate to success page
+      // 5. Navigate to success page
       navigate('/success', { state: { booking, roomName, paymentTime: new Date(paymentTime).toISOString() } });
     } catch (err) {
       console.error('Error processing payment:', err);
@@ -194,45 +235,49 @@ export default function Payment() {
 
                  {/* Slip Upload Section */}
                  <div className="bg-white border-2 border-dashed border-gray-200 rounded-2xl p-6 mb-6">
-                    <h3 className="text-sm font-semibold text-gray-700 mb-4">{t('payment.uploadSlip') || 'Upload Payment Slip'}</h3>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-4">
+                      {t('payment.uploadSlip') || 'Upload Payment Slip'} <span className="text-red-500">*</span>
+                    </h3>
 
-                    {!slipPreview ? (
-                       <div className="text-center">
-                          <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileSelect}
-                            accept="image/jpeg,image/jpg,image/png,image/webp"
-                            className="hidden"
-                          />
-                          <button
-                            onClick={() => fileInputRef.current?.click()}
-                            className="w-full py-8 border-2 border-dashed border-gray-300 rounded-xl hover:border-primary hover:bg-blue-50/50 transition-all flex flex-col items-center gap-2"
-                          >
-                             <Upload size={32} className="text-gray-400" />
-                             <span className="text-sm text-gray-500">{t('payment.clickToUpload') || 'Click to upload payment slip'}</span>
-                             <span className="text-xs text-gray-400">{t('payment.supportedFormats') || 'JPG, PNG, WebP (max 10MB)'}</span>
-                          </button>
-                       </div>
-                    ) : (
-                       <div className="relative">
-                          <img
-                            url={slipPreview}
-                            alt="Payment slip"
-                            className="w-full max-h-[300px] object-contain rounded-xl border border-gray-200"
-                          />
-                          <button
-                            onClick={handleRemoveSlip}
-                            className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 transition-colors"
-                          >
-                             <X size={16} />
-                          </button>
-                          <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
-                             <CheckCircle2 size={16} />
-                             <span>{t('payment.slipSelected') || 'Slip selected'}</span>
+                    <div className="text-center">
+                       <input
+                         type="file"
+                         ref={fileInputRef}
+                         onChange={handleFileSelect}
+                         accept="image/jpeg,image/jpg,image/png,image/webp"
+                         className="hidden"
+                       />
+                       <div className="flex items-center gap-3 mb-4">
+                           <button
+                             onClick={() => fileInputRef.current?.click()}
+                             className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors shrink-0 border border-gray-300"
+                           >
+                             {t('payment.chooseFile') || 'Choose File'}
+                           </button>
+                           <span className="text-sm text-gray-500 truncate">
+                             {slipImage ? slipImage.name : (t('payment.noFileChosen') || 'No file chosen')}
+                           </span>
+                        </div>
+
+                       {slipPreview && (
+                          <div className="mt-4">
+                             <p className="text-sm text-gray-700 mb-2 text-left">{t('payment.selectedImage') || 'Selected image:'}</p>
+                             <div className="relative inline-block">
+                                <img
+                                  src={slipPreview}
+                                  alt="Payment slip"
+                                  className="max-h-[400px] object-contain rounded-xl border border-gray-200"
+                                />
+                                <button
+                                  onClick={handleRemoveSlip}
+                                  className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 transition-colors shadow-md"
+                                >
+                                   <X size={16} />
+                                </button>
+                             </div>
                           </div>
-                       </div>
-                    )}
+                       )}
+                    </div>
                  </div>
 
                  <button
