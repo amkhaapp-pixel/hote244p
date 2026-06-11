@@ -7,7 +7,7 @@ import {
   Users,
   CreditCard,
   Settings,
-  LogOut,
+  Home,
   Search,
   Bell,
   CircleHelp,
@@ -18,7 +18,6 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useTranslation } from '../i18n/LanguageProvider';
-import { clearAuthSession } from '../utils/auth';
 
 const SIDEBAR_W = 'w-[280px]';
 const SIDEBAR_W_COLLAPSED = 'w-[72px]';
@@ -62,9 +61,8 @@ export default function AdminLayout() {
     }
   }, [token, user.role, navigate]);
 
-  const handleLogout = () => {
-    clearAuthSession();
-    navigate('/login', { replace: true });
+  const handleBackToHome = () => {
+    navigate('/');
   };
 
   const isActive = (path) => location.pathname === path;
@@ -172,11 +170,11 @@ export default function AdminLayout() {
         <div className="p-4 shrink-0 border-t border-slate-800">
           <button
             type="button"
-            onClick={handleLogout}
+            onClick={handleBackToHome}
             className={`flex w-full items-center gap-3 rounded px-6 py-3 text-left text-slate-400 transition-colors hover:bg-slate-800/50 hover:text-white ${isSidebarCollapsed ? 'justify-center px-3' : ''}`}
             title={isSidebarCollapsed ? t('adminPanel.layout.logout') : undefined}
           >
-            <LogOut size={22} />
+            <Home size={22} />
             {!isSidebarCollapsed && <span className="text-sm font-medium">{t('adminPanel.layout.logout')}</span>}
           </button>
         </div>
