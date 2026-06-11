@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { User, Mail, Shield, LogOut, ArrowLeft } from 'lucide-react';
 import { useTranslation } from '../i18n/LanguageProvider';
+import { clearAuthSession } from '../utils/auth';
 
 export default function Profile() {
   const { t } = useTranslation();
@@ -16,10 +17,7 @@ export default function Profile() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('adminToken');
-    window.dispatchEvent(new Event('authchange'));
+    clearAuthSession();
     navigate('/');
   };
 

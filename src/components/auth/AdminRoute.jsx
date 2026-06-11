@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import api from '../../api/axios';
+import { clearAuthSession } from '../../utils/auth';
 
 export default function AdminRoute({ children }) {
   const location = useLocation();
@@ -53,7 +54,7 @@ export default function AdminRoute({ children }) {
         }
 
         if (admin?.role !== 'admin') {
-          localStorage.removeItem('adminUser');
+          clearAuthSession();
           setIsAuthorized(false);
           setRedirectTo('/');
           return;
@@ -68,10 +69,7 @@ export default function AdminRoute({ children }) {
           return;
         }
 
-        localStorage.removeItem('user');
-        localStorage.removeItem('adminUser');
-        localStorage.removeItem('adminToken');
-        window.dispatchEvent(new Event('authchange'));
+        clearAuthSession();
         setIsAuthorized(false);
         setRedirectTo('/login');
       } finally {

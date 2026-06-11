@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown, Globe, Menu, Shield, User, LogOut, CalendarDays, X } from 'lucide-react';
 import { useTranslation } from '../../i18n/LanguageProvider';
+import { clearAuthSession } from '../../utils/auth';
 
 export default function Navbar() {
   const { t, lang, toggleLang } = useTranslation();
@@ -39,8 +40,7 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    window.dispatchEvent(new Event('authchange'));
+    clearAuthSession();
     setMenuOpen(false);
     setMobileMenuOpen(false);
     navigate('/');
