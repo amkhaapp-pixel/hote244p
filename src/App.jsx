@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { LanguageProvider } from './i18n/LanguageProvider';
-import { formatPrice } from './utils/formatPrice';
 import Layout from './components/layout/Layout';
+import AdminRoute from './components/auth/AdminRoute';
 import Home from './pages/Home';
 import Rooms from './pages/Rooms';
 import RoomDetail from './pages/RoomDetail';
@@ -50,7 +50,7 @@ export default function App() {
 
           {/* Admin Routes - /admin/login redirects to unified /login */}
           <Route path="/admin/login" element={<Navigate to="/login" replace />} />
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="bookings" element={<BookingManagement />} />
