@@ -86,7 +86,7 @@ export default function AdminRoute({ children }) {
     return () => {
       isMounted = false;
     };
-  }, [location.pathname, token, user?.id, user?.role]);
+  }, [token, user?.id, user?.role]);
 
   if (isVerifying) {
     return <div className="min-h-screen bg-[#fbf8fa]" />;
